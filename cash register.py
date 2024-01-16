@@ -6,6 +6,9 @@ import pygame
 from colorama import Fore
 import random
 import string
+from tabulate import tabulate
+import textwrap
+from collections import Counter
 
 # Initialize the pygame mixer
 pygame.mixer.init()
@@ -14,41 +17,53 @@ random_string = ''.join(random.choices(string.ascii_uppercase + string.ascii_low
 # Generate a random string of length 10 (number)
 random_string_num = ''.join(random.choices(string.digits, k=10))
 
-def print_receipt(items, prices, amount, order_type):
+# Function to print receipt
+def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
     total_price = sum(prices)
     if amount >= total_price:
-        print(" ")
-        print(bold_text(Fore.BLUE + "\nGROUP 1 COMPANY NAME EMI"))
-        print("OWNED & OPERATED BY: GROUP 1")
-        print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103")
-        print("VAT REG TIN: XXX-XXX-XXX-XXX")
-        print("SN:", random_string)
-        print("------------------------------")
         time.sleep(1)
-        print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT"))
-        print("OR No.:", random_string_num)
-        print("------------------------------")
-        print("Order Type:", order_type)
-        print("------------------------------")
-        print(bold_text(Fore.CYAN + "Description        Amount"))
+        print("\n" + bold_text(Fore.BLUE + "GROUP 1 COMPANY NAME EMI").center(60))
+        print("OWNED & OPERATED BY: GROUP 1".center(50))
+        print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103".center(50))
+        print("VAT REG TIN: XXX-XXX-XXX-XXX".center(50))
+        print("SN:".ljust(13) + random_string)
         time.sleep(1)
-        print("------------------------------")
-        for item, price in zip(items, prices):
-            print(f"{item}:         ₱{price}")
-        print("------------------------------")
-        print(f"Total:         ₱{total_price}")
-        print(f"Amount Paid:         ₱{amount}")
-        print(f"Change:         ₱{amount - total_price}")
-        print("------------------------------")
+        if is_staff:
+            print("Staff Name:".ljust(13) + staff_name)
+        print("-" * 50)
         time.sleep(1)
-        print("THIS SERVES AS YOUR OFFICIAL RECEIPT")
-        print("------------------------------")
+        print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(60))
+        print("OR No.:".ljust(13) + random_string_num)
+        print("-" * 50)
+        print(order_type.center(50))
+        print("-" * 50)
+        # Count the occurrences of each item
+        item_counter = Counter(items)
+        # Merge similar items and calculate total prices
+        unique_items = list(item_counter.keys())
+        merged_prices = [sum(prices[items.index(item)] for item in items if item == unique_item) for unique_item in unique_items]
+        # Create a table for items and prices via tabulate
+        table_data = [(count, item, f"₱{price}") for count, (item, price) in enumerate(zip(unique_items, merged_prices), start=1)]
+        table_headers = [bold_text(Fore.CYAN + "Items"), bold_text(Fore.CYAN + "Price"), bold_text(Fore.CYAN + "Item No.")]
+        table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid", colalign=("center", "left", "right"))
+        wrapped_table = textwrap.indent(textwrap.fill(table, width=50), ' ' * 3)
+        print(wrapped_table.lstrip())  # Remove leading whitespace
+        print("-" * 50)
         time.sleep(1)
-        print("\"THIS RECEIPT SHALL BE VALID FOR")
-        print("FIVE (5) YEARS FROM THE DATE OF")
-        print("PERMIT TO USE\"")
-        print("------------------------------")
-        print("--Thank you, and please come again-- 🤑")
+        # Create a table for total amount paid and change via tabulate
+        print(f"Total: ₱{total_price}")
+        print(f"Amount Paid: ₱{amount}")
+        print(f"Change: ₱{amount - total_price}")
+        print("-" * 50)
+        time.sleep(1)
+        print("THIS SERVES AS YOUR OFFICIAL RECEIPT".center(50))
+        print("-" * 50)
+        time.sleep(1)
+        print("\"THIS RECEIPT SHALL BE VALID FOR".center(50))
+        print("FIVE (5) YEARS FROM THE DATE OF".center(50))
+        print("PERMIT TO USE\"".center(50))
+        print("-" * 50)
+        print("--Thank you, and please come again-- 🤑".center(50))
     else:
         print("Invalid. Amount is less than the total price or you're just too broke.")
 
@@ -75,11 +90,24 @@ def bold_text(text):
     bold_end = '\033[0m'
     return bold_start + text + bold_end
 
-print(bold_text(Fore.YELLOW + "------- CASH REGISTER -------"))
+print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
+time.sleep(1)
+print("")
+print(bold_text(Fore.YELLOW + "Hi Welcome to company name"))
 time.sleep(1)
 
-
 def main():
+    is_staff = False
+    staff_name = ""
+
+    print("Are you a staff member? (yes/no)")
+    staff_response = input("").lower()
+    staff = ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct']
+    if staff_response in staff:
+        is_staff = True
+        print("")
+        staff_name = input("Enter your name: ")
+
     items = []
     prices = []
     order_type = ""
@@ -91,7 +119,7 @@ def main():
         check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum']
         if item.lower() in check_out:
             break
-        
+
         while True:
             try:
                 print("")
@@ -128,12 +156,12 @@ def main():
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
     delete_multiple_lines(n=1000)
-    print(bold_text(Fore.YELLOW + "------- CASH REGISTER -------"))
+    print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
     sound_file = "sfx\dot matrix.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
     loading_bar(5)
-    print_receipt(items, prices, amount, order_type)
+    print_receipt(items, prices, amount, order_type, is_staff, staff_name)
 
 if __name__ == "__main__":
     main()
