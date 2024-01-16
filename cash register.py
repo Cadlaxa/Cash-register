@@ -31,6 +31,7 @@ def print_receipt(items, prices, amount, order_type):
         print("Order Type:", order_type)
         print("------------------------------")
         print(bold_text(Fore.CYAN + "Description        Amount"))
+        time.sleep(1)
         print("------------------------------")
         for item, price in zip(items, prices):
             print(f"{item}:         ₱{price}")
@@ -39,8 +40,10 @@ def print_receipt(items, prices, amount, order_type):
         print(f"Amount Paid:         ₱{amount}")
         print(f"Change:         ₱{amount - total_price}")
         print("------------------------------")
+        time.sleep(1)
         print("THIS SERVES AS YOUR OFFICIAL RECEIPT")
         print("------------------------------")
+        time.sleep(1)
         print("\"THIS RECEIPT SHALL BE VALID FOR")
         print("FIVE (5) YEARS FROM THE DATE OF")
         print("PERMIT TO USE\"")
@@ -88,8 +91,7 @@ def main():
         check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum']
         if item.lower() in check_out:
             break
-        print("")
-
+        
         while True:
             try:
                 print("")
