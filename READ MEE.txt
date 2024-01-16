@@ -1,1 +1,3 @@
 open nyo yung install modules.bat cuz it needs some python modules, also open nyo sya sa vs code thx
+
+IMPORTANT: use python 3.11.0
