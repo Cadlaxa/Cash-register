@@ -3,17 +3,18 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import time
 import sys
 import pygame
-from colorama import Fore, Style
+from colorama import Fore
 import random
 import string
 
 # Initialize the pygame mixer
 pygame.mixer.init()
-# Generate a random string of length 5
+# Generate a random string of length 10
 random_string = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=10))
+# Generate a random string of length 10 (number)
+random_string_num = ''.join(random.choices(string.digits, k=10))
 
-
-def print_receipt(staff, items, prices, amount):
+def print_receipt(items, prices, amount, order_type):
     total_price = sum(prices)
     if amount >= total_price:
         print(" ")
@@ -25,18 +26,26 @@ def print_receipt(staff, items, prices, amount):
         print("------------------------------")
         time.sleep(1)
         print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT"))
-        print("OR No.:", random_string)
-        for staff in staff:
-            print(f"Staff: {staff}")
+        print("OR No.:", random_string_num)
+        print("------------------------------")
+        print("Order Type:", order_type)
+        print("------------------------------")
+        print(bold_text(Fore.CYAN + "Description        Amount"))
         print("------------------------------")
         for item, price in zip(items, prices):
-            print(f"{item}: ₱{price}")
+            print(f"{item}:         ₱{price}")
         print("------------------------------")
-        print(f"Total: ₱{total_price}")
-        print(f"Amount Paid: ₱{amount}")
-        print(f"Change: ₱{amount - total_price}")
+        print(f"Total:         ₱{total_price}")
+        print(f"Amount Paid:         ₱{amount}")
+        print(f"Change:         ₱{amount - total_price}")
         print("------------------------------")
-        print("Thank you sa pamimili!")
+        print("THIS SERVES AS YOUR OFFICIAL RECEIPT")
+        print("------------------------------")
+        print("\"THIS RECEIPT SHALL BE VALID FOR")
+        print("FIVE (5) YEARS FROM THE DATE OF")
+        print("PERMIT TO USE\"")
+        print("------------------------------")
+        print("--Thank you, and please come again-- 🤑")
     else:
         print("Invalid. Amount is less than the total price or you're just too broke.")
 
@@ -62,8 +71,7 @@ def bold_text(text):
     bold_start = '\033[1m'
     bold_end = '\033[0m'
     return bold_start + text + bold_end
-bold_start = '\033[1m'
-bold_end = '\033[0m'
+
 print(bold_text(Fore.YELLOW + "------- CASH REGISTER -------"))
 time.sleep(1)
 
@@ -71,17 +79,9 @@ time.sleep(1)
 def main():
     items = []
     prices = []
-    staff = []
+    order_type = ""
 
     while True:
-        print("")
-        print("Are you a staff of this company or a customer?")
-        item = input("")
-        staff_ans = ['yes', 'oo', 'agree', 'slayed', 'yes mama']
-        if item.lower() in staff_ans:
-            print("")
-            staff = input("Name of the staff: ")
-            break
         print("")
         print("Enter item name ('check out' to finish): ")
         item = input("")
@@ -111,7 +111,16 @@ def main():
             amount = float(input("Enter the amount paid: ₱"))
             break
         except ValueError:
-            print("Invalid input.", bold_start, "Please enter a valid number", bold_end, "for the amount paid.")
+            print("Invalid input.", bold_text("Please enter a valid number"), "for the amount paid.")
+
+    print("")
+    print("Is this for dine-in or take-out?")
+    while True:
+        order_type = input("").lower()
+        if order_type in ['dine-in', 'take-out']:
+            break
+        else:
+            print("Invalid input. Please enter 'dine-in' or 'take-out'.")
 
     sound_file = "sfx\purchase.mp3"
     sound = pygame.mixer.Sound(sound_file)
@@ -122,7 +131,7 @@ def main():
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
     loading_bar(5)
-    print_receipt(items, prices, amount)
+    print_receipt(items, prices, amount, order_type)
 
 if __name__ == "__main__":
     main()
