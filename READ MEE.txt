@@ -6,3 +6,6 @@ If you have multiple versions of python, choose python ver 3.11.0 under:
     1. Under the View menu select Command Palette... F1 (or press F1 key)
     2. Type Python: Select Interpreter.
     3. Choose which Python version to use by default [1].
+
+Direct install on cmd if you have python 3.11
+    py -3.11 -m pip install "yung module name"
