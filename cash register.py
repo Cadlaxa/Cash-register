@@ -3,7 +3,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import time
 import sys
 import pygame
-from colorama import Fore
+from colorama import Fore, init
 import random
 import string
 from tabulate import tabulate
@@ -44,10 +44,8 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         merged_prices = [sum(prices[items.index(item)] for item in items if item == unique_item) for unique_item in unique_items]
         # Create a table for items and prices via tabulate
         table_data = [(count, item, f"₱{price}") for count, (item, price) in enumerate(zip(unique_items, merged_prices), start=1)]
-        table_headers = [bold_text(Fore.CYAN + "Items"), bold_text(Fore.CYAN + "Price"), bold_text(Fore.CYAN + "Item No.")]
-        table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid", colalign=("center", "left", "right"))
-        wrapped_table = textwrap.indent(textwrap.fill(table, width=50), ' ' * 3)
-        print(wrapped_table.lstrip())  # Remove leading whitespace
+        for count, item, price in table_data:
+            print(f"{bold_text(Fore.CYAN + 'Item No:')} {count} | {bold_text(Fore.CYAN + 'Item:')} {item} | {bold_text(Fore.CYAN + 'Price:')} {price}")
         print("-" * 50)
         time.sleep(1)
         # Create a table for total amount paid and change via tabulate
@@ -65,7 +63,10 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("-" * 50)
         print("--Thank you, and please come again-- 🤑".center(50))
     else:
-        print("Invalid. Amount is less than the total price or you're just too broke.")
+        sound_file = "sfx\\notification.mp3"
+        sound = pygame.mixer.Sound(sound_file)
+        sound.play()
+        print(Fore.LIGHTMAGENTA_EX + "Invalid. Amount is less than the total price or you're just too broke.")
 
 def delete_last_line():
     # cursor up one line
@@ -90,22 +91,33 @@ def bold_text(text):
     bold_end = '\033[0m'
     return bold_start + text + bold_end
 
+sound_file = "sfx\mixkit-software.wav"
+sound = pygame.mixer.Sound(sound_file)
+sound.play()
 print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
 time.sleep(1)
 print("")
+sound_file = "sfx\\tap-notification.mp3"
+sound = pygame.mixer.Sound(sound_file)
+sound.play()
 print(bold_text(Fore.YELLOW + "Hi Welcome to company name"))
 time.sleep(1)
 
 def main():
     is_staff = False
     staff_name = ""
-
+    sound_file = "sfx\\tap-notification.mp3"
+    sound = pygame.mixer.Sound(sound_file)
+    sound.play()
     print("Are you a staff member? (yes/no)")
     staff_response = input("").lower()
     staff = ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct']
     if staff_response in staff:
         is_staff = True
         print("")
+        sound_file = "sfx\\tap-notification.mp3"
+        sound = pygame.mixer.Sound(sound_file)
+        sound.play()
         staff_name = input("Enter your name: ")
 
     items = []
@@ -114,6 +126,9 @@ def main():
 
     while True:
         print("")
+        sound_file = "sfx\\tap-notification.mp3"
+        sound = pygame.mixer.Sound(sound_file)
+        sound.play()
         print("Enter item name ('check out' to finish): ")
         item = input("")
         check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum']
@@ -123,34 +138,80 @@ def main():
         while True:
             try:
                 print("")
+                print(Fore.RESET)
+                sound_file = "sfx\\tap-notification.mp3"
+                sound = pygame.mixer.Sound(sound_file)
+                sound.play()
                 price = float(input("Enter item price: ₱"))
-                break
+                if price < 0:
+                    sound_file = "sfx\\notification.mp3"
+                    sound = pygame.mixer.Sound(sound_file)
+                    sound.play()
+                    print(Fore.LIGHTMAGENTA_EX + 
+                    "Invalid input. Value of the item must be positive, input a non-negative number")
+                    time.sleep(2)
+                else:
+                    break
             except ValueError:
-                print("Invalid input. Please enter a valid number for the item price.")
+                sound_file = "sfx\\notification.mp3"
+                sound = pygame.mixer.Sound(sound_file)
+                sound.play()
+                print(Fore.LIGHTMAGENTA_EX +
+                      "Invalid input. Please enter a valid number for the item price.")
+                time.sleep(2)
 
         items.append(item)
         prices.append(price)
         sound_file = "sfx\scanner.mp3"
         sound = pygame.mixer.Sound(sound_file)
         sound.play()
-
+        time.sleep(1)
     print("")
     while True:
         try:
-            print("")
+            print(Fore.RESET)
+            sound_file = "sfx\\tap-notification.mp3"
+            sound = pygame.mixer.Sound(sound_file)
+            sound.play()
             amount = float(input("Enter the amount paid: ₱"))
-            break
+            if amount > 1:
+                sound_file = "sfx\livechat-129007.mp3"
+                sound = pygame.mixer.Sound(sound_file)
+                sound.play()
+            time.sleep(1)
+            if amount < 0:
+                    sound_file = "sfx\\notification.mp3"
+                    sound = pygame.mixer.Sound(sound_file)
+                    sound.play()
+                    print(Fore.LIGHTMAGENTA_EX + 
+                    "Invalid input. Value of the item must be positive, input a non-negative number")
+                    time.sleep(2)
+            else:
+                break
         except ValueError:
-            print("Invalid input.", bold_text("Please enter a valid number"), "for the amount paid.")
+            sound_file = "sfx\\notification.mp3"
+            sound = pygame.mixer.Sound(sound_file)
+            sound.play()
+            print(Fore.LIGHTMAGENTA_EX +
+                    "Invalid input. Please enter a valid number for the item price.")
+            time.sleep(2)
 
     print("")
+    sound_file = "sfx\\tap-notification.mp3"
+    sound = pygame.mixer.Sound(sound_file)
+    sound.play()
     print("Is this for dine-in or take-out?")
     while True:
+        print(Fore.RESET)
         order_type = input("").lower()
         if order_type in ['dine-in', 'take-out']:
             break
         else:
-            print("Invalid input. Please enter 'dine-in' or 'take-out'.")
+            sound_file = "sfx\\notification.mp3"
+            sound = pygame.mixer.Sound(sound_file)
+            sound.play()
+            print(Fore.LIGHTMAGENTA_EX +
+                  "Invalid input. Please enter 'dine-in' or 'take-out'.")
 
     sound_file = "sfx\purchase.mp3"
     sound = pygame.mixer.Sound(sound_file)
