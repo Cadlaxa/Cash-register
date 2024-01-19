@@ -15,4 +15,4 @@ For making qr codes go to https://www.qr-code-generator.com/
     format is:
         item name = price
     example:
-        bato ni vhal = 50
+        bato ni vhal = ₱50

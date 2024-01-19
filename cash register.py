@@ -56,7 +56,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
     total_price = sum(prices)
     if amount >= total_price:
         time.sleep(1)
-        print("\n" + bold_text(Fore.BLUE + "GROUP 1 COMPANY NAME EMI").center(60))
+        print("\n" + bold_text(Fore.BLUE + "GROUP 1 COMPANY NAME EMI").center(63))
         print("OWNED & OPERATED BY: GROUP 1".center(50))
         print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103".center(50))
         print("VAT REG TIN: XXX-XXX-XXX-XXX".center(50))
@@ -66,10 +66,10 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
             print("Staff Name:".ljust(13) + staff_name)
         print("-" * 50)
         time.sleep(1)
-        print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(60))
+        print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(63))
         print("OR No.:".ljust(13) + random_string_num)
         print("-" * 50)
-        print(order_type.center(50))
+        print(order_type.center(50).upper())
         print("-" * 50)
         # Count the occurrences of each item
         item_counter = Counter(items)
@@ -140,6 +140,7 @@ sound = pygame.mixer.Sound(sound_file)
 sound.play()
 print(bold_text(Fore.YELLOW + "Hi Welcome to company name"))
 time.sleep(1)
+print("")
 
 def main():
     # Read QR code input
@@ -148,10 +149,10 @@ def main():
     sound.play()
     print("Do you have a QR code to scan? (yes/no)")
     qr_response = input("").lower()
-
     if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
-        sound_file = "sfx\\tap-notification.mp3"  # Corrected this line
+        sound_file = "sfx\\tap-notification.mp3"
         sound = pygame.mixer.Sound(sound_file)
+        time.sleep(1)
     else:
         sound.play()
         
@@ -193,7 +194,7 @@ def main():
             if len(parts) == 2:
                 item = parts[0].strip()  # Extract item name
                 try:
-                    price = float(parts[1].replace('$', '').strip())  # Extract and convert price
+                    price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
                 except ValueError:
                     print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR code try again.")
                     continue
@@ -233,7 +234,6 @@ def main():
         sound = pygame.mixer.Sound(sound_file)
         sound.play()
         time.sleep(1)
-    print("")
     while True:
         try:
             print(Fore.RESET)
@@ -271,7 +271,8 @@ def main():
     while True:
         print(Fore.RESET)
         order_type = input("").lower()
-        if order_type in ['dine-in', 'take-out']:
+        dine_inout = ['dine-in', 'dine in', 'dine', 'take-out', 'take out', 'take', 'in', 'out']
+        if order_type in dine_inout:
             break
         else:
             sound_file = "sfx\\notification.mp3"
@@ -281,7 +282,6 @@ def main():
                   "Invalid input. Please enter 'dine-in' or 'take-out'.")
             time.sleep(2)
             print(Fore.RESET)
-            print("")
             print("Is this for dine-in or take-out?")
 
     sound_file = "sfx\purchase.mp3"
