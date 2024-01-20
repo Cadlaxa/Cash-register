@@ -1,6 +1,6 @@
 open nyo yung install modules.bat cuz it needs some python modules, also open nyo sya sa vs code thx
 
-IMPORTANT: use python 3.11.0
+IMPORTANT: use python 3.11.0 and below
 
 If you have multiple versions of python, choose python ver 3.11.0 under:
     1. Under the View menu select Command Palette... F1 (or press F1 key)
@@ -9,3 +9,10 @@ If you have multiple versions of python, choose python ver 3.11.0 under:
 
 Direct install on cmd if you have python 3.11
     py -3.11 -m pip install "yung module name"
+..Or run py.3.11 modules.bat for automatic install
+
+For making qr codes go to https://www.qr-code-generator.com/
+    format is:
+        item name = price
+    example:
+        bato ni vhal = ₱50
