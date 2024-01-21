@@ -1,3 +1,4 @@
+# python modules
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import cv2
@@ -5,34 +6,23 @@ from pyzbar.pyzbar import decode
 import qrcode
 import time
 import sys
-import pygame
-from colorama import Fore, init
+import pygame #for sfx and such
+from colorama import Fore
 import random
 import string
 from tabulate import tabulate
-import textwrap
-from collections import Counter
+import textwrap # unused might remeove soon
+from collections import Counter #may counter bug sa code
 
 # Initialize the pygame mixer
 pygame.mixer.init()
 # Generate a random string of length 10
 random_string = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=10))
-# Generate a random string of length 10 (number)
+# Generate a random number of length 10 
 random_string_num = ''.join(random.choices(string.digits, k=10))
-
-# Function to generate QR code
-def generate_qr_code(data):
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save("qrcode.png")
+# For printing cuurent date and time sa receipt
+dateNtime = time.localtime(time.time())
+local_time = time.asctime(dateNtime)
 
 # Function to read QR code
 def read_qr_code():
@@ -68,25 +58,24 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         time.sleep(1)
         print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(63))
         print("OR No.:".ljust(13) + random_string_num)
+        print(local_time.center(50))
         print("-" * 50)
         print(order_type.center(50).upper())
         print("-" * 50)
         # Count the occurrences of each item
         item_counter = Counter(items)
-
         # Calculate total prices for each unique item
         total_prices = {}
         for item, count in item_counter.items():
             total_prices[item] = sum(prices[i] for i, it in enumerate(items) if it == item)
-
         # Create a table for items and prices via tabulate
         table_data = [(count, item, f"₱{price}") for count, (item, price) in enumerate(total_prices.items(), start=1)]
         table_headers = [bold_text(Fore.CYAN + 'Item No'), bold_text(Fore.CYAN + 'Item'), bold_text(Fore.CYAN + 'Price')]
         table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid")
-        print(table)
+        print(table.center(50))
         print("-" * 50)
         time.sleep(1)
-        # Create a table for total amount paid and change via tabulate
+        # Create a table for total amount paid and change via tabulate module
         print(f"Total: ₱{total_price}")
         print(f"Amount Paid: ₱{amount}")
         print(f"Change: ₱{amount - total_price}")
@@ -177,13 +166,16 @@ def main():
     items = []
     prices = []
     order_type = ""
-
-    while True:
+    delete_multiple_lines(8)
+    while True: # Dito yung item/price intum via qr code scanner or console input
         print("")
         sound_file = "sfx\\tap-notification.mp3"
         sound = pygame.mixer.Sound(sound_file)
         sound.play()
-        print("Enter item name ('check out' to finish): ")
+        if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
+            print("Scan item/product ('scan staff id to check out'): ")
+        else:
+            print("Enter item name ('check out' to finish): ")
         if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
             item = read_qr_code()
             sound_file = "sfx\\scanner.mp3"
@@ -204,7 +196,7 @@ def main():
         if item.lower() in check_out:
             break
         if qr_response not in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
-            while True:
+            while True: # Via console input price if user selected no sa qr scanner
                 try:
                     print(Fore.RESET)
                     sound_file = "sfx\\tap-notification.mp3"
@@ -234,8 +226,9 @@ def main():
         sound = pygame.mixer.Sound(sound_file)
         sound.play()
         time.sleep(1)
-    while True:
+    while True: # Dito na yung ibabayad (enter yung amount) via console
         try:
+            time.sleep(1)
             print(Fore.RESET)
             sound_file = "sfx\\tap-notification.mp3"
             sound = pygame.mixer.Sound(sound_file)
@@ -263,6 +256,7 @@ def main():
                     "Invalid input. Please enter a valid number for the item price.")
             time.sleep(2)
 
+    # Dine-in or Take-out the products
     print("")
     sound_file = "sfx\\tap-notification.mp3"
     sound = pygame.mixer.Sound(sound_file)
@@ -287,6 +281,7 @@ def main():
     sound_file = "sfx\purchase.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
+    # Delete lahat ng console output and proceed sa printing ng receipt for cleaner output
     delete_multiple_lines(n=1000)
     print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
     sound_file = "sfx\dot matrix.mp3"
