@@ -24,7 +24,7 @@ random_string_num = ''.join(random.choices(string.digits, k=10))
 dateNtime = time.localtime(time.time())
 local_time = time.asctime(dateNtime)
 
-# Function to read QR code
+# Function to read QR/bar code
 def read_qr_code():
     cap = cv2.VideoCapture(0)
     while True:
@@ -34,7 +34,7 @@ def read_qr_code():
             for obj in decoded_objects:
                 print(obj.data.decode("utf-8"))
                 return obj.data.decode("utf-8")
-            cv2.imshow("QR Code Scanner", frame)
+            cv2.imshow("QR/Bar Code Scanner", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
@@ -132,11 +132,11 @@ time.sleep(1)
 print("")
 
 def main():
-    # Read QR code input
+    # Read QR/Bar code input
     sound_file = "sfx\\tap-notification.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
-    print("Do you have a QR code to scan? (yes/no)")
+    print("Do you have a QR/Bar code to scan? (yes/no)")
     qr_response = input("").lower()
     if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
         sound_file = "sfx\\tap-notification.mp3"
