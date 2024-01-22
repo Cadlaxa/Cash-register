@@ -3,7 +3,6 @@ from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import cv2
 from pyzbar.pyzbar import decode
-import qrcode
 import time
 import sys
 import pygame #for sfx and such
@@ -67,7 +66,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         # Calculate total prices for each unique item
         total_prices = {}
         for item, count in item_counter.items():
-            total_prices[item] = sum(prices[i] for i, it in enumerate(items) if it == item)
+            total_prices[item] = sum(prices[i] for i, it in enumerate(items) if it == item) * count
         # Create a table for items and prices via tabulate
         table_data = [(count, item, f"₱{price}") for count, (item, price) in enumerate(total_prices.items(), start=1)]
         table_headers = [bold_text(Fore.CYAN + 'Item No'), bold_text(Fore.CYAN + 'Item'), bold_text(Fore.CYAN + 'Price')]
@@ -90,8 +89,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("-" * 50)
         print("--Thank you, and please come again-- 🤑".center(50))
     else:
-        sound_file = "sfx\\notification.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound("sfx\\notification.mp3")
         sound.play()
         print(Fore.LIGHTMAGENTA_EX + "Invalid. Insufficient amount. Please enter an amount equal to or greater than the item price 😥")
 
@@ -118,38 +116,39 @@ def bold_text(text):
     bold_end = '\033[0m'
     return bold_start + text + bold_end
 
-sound_file = "sfx\mixkit-software.wav"
-sound = pygame.mixer.Sound(sound_file)
+# SFXs
+start_notif = "sfx\mixkit-software.wav"
+pop_notif = "sfx\\tap-notification.mp3"
+error_notif = "sfx\\notification.mp3"
+scan_notif = "sfx\scanner.mp3"
+
+sound = pygame.mixer.Sound(start_notif)
 sound.play()
 print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
 time.sleep(1)
 print("")
-sound_file = "sfx\\tap-notification.mp3"
-sound = pygame.mixer.Sound(sound_file)
+sound = pygame.mixer.Sound(pop_notif)
 sound.play()
 print(bold_text(Fore.YELLOW + "Hi Welcome to company name"))
 time.sleep(1)
 print("")
 
 def main():
-    # Read QR/Bar code input
-    sound_file = "sfx\\tap-notification.mp3"
-    sound = pygame.mixer.Sound(sound_file)
+    # Enable/disable scanner input
+    use_scanner = False
+    sound = pygame.mixer.Sound(pop_notif)
     sound.play()
     print("Do you have a QR/Bar code to scan? (yes/no)")
     qr_response = input("").lower()
     if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
-        sound_file = "sfx\\tap-notification.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound(pop_notif)
+        use_scanner = True
         time.sleep(1)
-    else:
-        sound.play()
         
     # staff 
     is_staff = False
     staff_name = ""
-    sound_file = "sfx\\tap-notification.mp3"
-    sound = pygame.mixer.Sound(sound_file)
+    sound = pygame.mixer.Sound(pop_notif)
     sound.play()
     print("")
     print("Are you a staff member? (yes/no)")
@@ -158,8 +157,7 @@ def main():
     if staff_response in staff:
         is_staff = True
         print("")
-        sound_file = "sfx\\tap-notification.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound(pop_notif)
         sound.play()
         staff_name = input("Enter your name: ")
 
@@ -167,19 +165,14 @@ def main():
     prices = []
     order_type = ""
     delete_multiple_lines(8)
-    while True: # Dito yung item/price intum via qr code scanner or console input
+    while True:  # Dito yung item/price item via qr/bar code scanner or console input
         print("")
-        sound_file = "sfx\\tap-notification.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound(pop_notif)
         sound.play()
-        if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
+        if use_scanner:  # Use scanner input
             print("Scan item/product ('scan staff id to check out'): ")
-        else:
-            print("Enter item name ('check out' to finish): ")
-        if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
             item = read_qr_code()
-            sound_file = "sfx\\scanner.mp3"
-            sound = pygame.mixer.Sound(sound_file)
+            sound = pygame.mixer.Sound(scan_notif)
             sound.play()
             # Split the scanned data using '=' as the delimiter/splitter
             parts = item.split('=')
@@ -188,24 +181,47 @@ def main():
                 try:
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
                 except ValueError:
+                    sound = pygame.mixer.Sound(scan_notif)
+                    sound.play()
                     print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR code try again.")
                     continue
-        else:
+        else:  # Use console input
+            print("Enter item name ('check out' to finish): ")
             item = input("")
+
+            # Initialize price before checking qr_response (very important kasi nag aapend pa rin sya if the user switches input)
+            price = None
+
+        # Console to Scanner, Scanner to Console override
+        override = ['override', 'switch input', 'switch', 'next', 'new']
+        if item in override:
+            use_scanner = not use_scanner
+            time.sleep(1)
+            sound = pygame.mixer.Sound("sfx\\mixkit-software.wav")
+            sound.play()
+            print(Fore.LIGHTGREEN_EX + "Scanner Overridden. Switching input mode. Now using Console input" if not use_scanner
+                else Fore.LIGHTGREEN_EX + "Console Overridden. Switching input mode. Now using Scanner input")
+            print(Fore.RESET)
+            time.sleep(1)
+            continue
+
+        # Check-out conditions
         check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum']
         if item.lower() in check_out:
             break
-        if qr_response not in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
-            while True: # Via console input price if user selected no sa qr scanner
+
+        # Check if the price needs to be obtained via console input
+        if not use_scanner:
+            while True:
                 try:
                     print(Fore.RESET)
-                    sound_file = "sfx\\tap-notification.mp3"
-                    sound = pygame.mixer.Sound(sound_file)
+                    sound = pygame.mixer.Sound(pop_notif)
                     sound.play()
                     price = float(input("Enter item price: ₱"))
+                    sound = pygame.mixer.Sound(scan_notif)
+                    sound.play()
                     if price < 0:
-                        sound_file = "sfx\\notification.mp3"
-                        sound = pygame.mixer.Sound(sound_file)
+                        sound = pygame.mixer.Sound(error_notif)
                         sound.play()
                         print(Fore.LIGHTMAGENTA_EX +
                             "Invalid input. Value of the item must be positive, input a non-negative number")
@@ -213,25 +229,24 @@ def main():
                     else:
                         break
                 except ValueError:
-                    sound_file = "sfx\\notification.mp3"
-                    sound = pygame.mixer.Sound(sound_file)
+                    sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX +
                         "Invalid input. Please enter a valid number for the item price.")
                     time.sleep(2)
 
+        # Append the item and price to the respective lists (sum of items sa console or scanner or switch input vice versa)
         items.append(item)
         prices.append(price)
-        sound_file = "sfx\scanner.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound(scan_notif)
         sound.play()
         time.sleep(1)
+
     while True: # Dito na yung ibabayad (enter yung amount) via console
         try:
             time.sleep(1)
             print(Fore.RESET)
-            sound_file = "sfx\\tap-notification.mp3"
-            sound = pygame.mixer.Sound(sound_file)
+            sound = pygame.mixer.Sound(pop_notif)
             sound.play()
             amount = float(input("Enter the amount paid: ₱"))
             if amount > 1:
@@ -240,8 +255,7 @@ def main():
                 sound.play()
             time.sleep(1)
             if amount < 0:
-                    sound_file = "sfx\\notification.mp3"
-                    sound = pygame.mixer.Sound(sound_file)
+                    sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX + 
                     "Invalid input. Value of the item must be positive, input a non-negative number")
@@ -249,8 +263,7 @@ def main():
             else:
                 break
         except ValueError:
-            sound_file = "sfx\\notification.mp3"
-            sound = pygame.mixer.Sound(sound_file)
+            sound = pygame.mixer.Sound(error_notif)
             sound.play()
             print(Fore.LIGHTMAGENTA_EX +
                     "Invalid input. Please enter a valid number for the item price.")
@@ -258,8 +271,7 @@ def main():
 
     # Dine-in or Take-out the products
     print("")
-    sound_file = "sfx\\tap-notification.mp3"
-    sound = pygame.mixer.Sound(sound_file)
+    sound = pygame.mixer.Sound(pop_notif)
     sound.play()
     print("Is this for dine-in or take-out?")
     while True:
@@ -269,8 +281,7 @@ def main():
         if order_type in dine_inout:
             break
         else:
-            sound_file = "sfx\\notification.mp3"
-            sound = pygame.mixer.Sound(sound_file)
+            sound = pygame.mixer.Sound(error_notif)
             sound.play()
             print(Fore.LIGHTMAGENTA_EX +
                   "Invalid input. Please enter 'dine-in' or 'take-out'.")
@@ -292,8 +303,7 @@ def main():
     if amount >= total_price:
         print_receipt(items, prices, amount, order_type, is_staff, staff_name)
     else:
-        sound_file = "sfx\\notification.mp3"
-        sound = pygame.mixer.Sound(sound_file)
+        sound = pygame.mixer.Sound(error_notif)
         sound.play()
         print(Fore.LIGHTMAGENTA_EX + "Invalid. Insufficient amount. Please enter an amount equal to or greater than the item price 😥")
 
