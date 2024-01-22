@@ -1,0 +1,29 @@
+if len(parts) == 2:
+    item, price_str = [part.strip() for part in parts]  # Extract item name and price
+
+    # Ensure price_str is a string and follows the 'item = price' format
+    if not (isinstance(price_str, str) and ' = ' in price_str):
+        sound = pygame.mixer.Sound(error_notif)
+        sound.play()
+        print("")
+        print(Fore.LIGHTMAGENTA_EX + "Invalid format in the QR/Bar code. It should be 'item = price'. Try again.")
+        time.sleep(1)
+        continue
+
+    # Extract and convert price
+    try:
+        price = float(price_str.split(' = ')[1])  # Extract the price part after ' = '
+    except ValueError:
+        sound = pygame.mixer.Sound(error_notif)
+        sound.play()
+        print("")
+        print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR/Bar code. Try again.")
+        time.sleep(1)
+        continue
+else:
+    sound = pygame.mixer.Sound(error_notif)
+    sound.play()
+    print("")
+    print(Fore.LIGHTMAGENTA_EX + "Invalid format in the QR/Bar code. It should be 'item = price'. Try again.")
+    time.sleep(1)
+    continue

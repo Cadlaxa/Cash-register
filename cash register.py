@@ -166,7 +166,7 @@ def main():
     order_type = ""
     delete_multiple_lines(8)
     while True:  # Dito yung item/price item via qr/bar code scanner or console input
-        print("")
+        print(Fore.RESET)
         sound = pygame.mixer.Sound(pop_notif)
         sound.play()
         if use_scanner:  # Use scanner input
@@ -183,7 +183,7 @@ def main():
                 except ValueError:
                     sound = pygame.mixer.Sound(scan_notif)
                     sound.play()
-                    print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR code try again.")
+                    print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR/Bar code try again." + Fore.RESET)
                     continue
         else:  # Use console input
             print("Enter item name ('check out' to finish): ")
@@ -199,14 +199,14 @@ def main():
             time.sleep(1)
             sound = pygame.mixer.Sound("sfx\\mixkit-software.wav")
             sound.play()
-            print(Fore.LIGHTGREEN_EX + "Scanner Overridden. Switching input mode. Now using Console input" if not use_scanner
-                else Fore.LIGHTGREEN_EX + "Console Overridden. Switching input mode. Now using Scanner input")
-            print(Fore.RESET)
+            print("")
+            print(Fore.LIGHTGREEN_EX + "Scanner Overridden. Switching input mode. Now using Console input" + Fore.RESET if not use_scanner
+                else Fore.LIGHTGREEN_EX + "Console Overridden. Switching input mode. Now using Scanner input" + Fore.RESET)
             time.sleep(1)
             continue
 
         # Check-out conditions
-        check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum']
+        check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum', 'check-out']
         if item.lower() in check_out:
             break
 
@@ -232,7 +232,7 @@ def main():
                     sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX +
-                        "Invalid input. Please enter a valid number for the item price.")
+                        "Invalid input. Please enter a valid number for the item price." + Fore.RESET)
                     time.sleep(2)
 
         # Append the item and price to the respective lists (sum of items sa console or scanner or switch input vice versa)
@@ -258,7 +258,7 @@ def main():
                     sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX + 
-                    "Invalid input. Value of the item must be positive, input a non-negative number")
+                    "Invalid input. Value of the item must be positive, input a non-negative number" + Fore.RESET)
                     time.sleep(2)
             else:
                 break
@@ -266,7 +266,7 @@ def main():
             sound = pygame.mixer.Sound(error_notif)
             sound.play()
             print(Fore.LIGHTMAGENTA_EX +
-                    "Invalid input. Please enter a valid number for the item price.")
+                    "Invalid input. Please enter a valid number for the item price." + Fore.RESET)
             time.sleep(2)
 
     # Dine-in or Take-out the products
@@ -292,6 +292,7 @@ def main():
     sound_file = "sfx\purchase.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
+
     # Delete lahat ng console output and proceed sa printing ng receipt for cleaner output
     delete_multiple_lines(n=1000)
     print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
