@@ -48,36 +48,34 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("\n" + bold_text(Fore.BLUE + "GROUP 1 COMPANY NAME EMI").center(63))
         print("OWNED & OPERATED BY: GROUP 1".center(50))
         print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103".center(50))
-        print("VAT REG TIN: XXX-XXX-XXX-XXX".center(50))
-        print("SN:".ljust(13) + random_string)
+        print("VAT REG TIN:".ljust(28), "XXX-XXX-XXX-XXX".rjust(20))
+        print("SN:".ljust(28) + random_string.rjust(20))
         time.sleep(1)
         if is_staff:
-            print("Staff Name:".ljust(13) + staff_name)
+            print("Staff Name:".ljust(28) + staff_name.rjust(20))
         print("-" * 50)
         time.sleep(1)
         print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(63))
-        print("OR No.:".ljust(13) + random_string_num)
-        print(local_time.center(50))
+        print("OR No.:".ljust(28) + random_string_num.rjust(20))
+        print(bold_text(local_time.center(50)))
         print("-" * 50)
-        print(order_type.center(50).upper())
+        print(bold_text(order_type.center(50).upper()))
         print("-" * 50)
-        # Count the occurrences of each item
-        item_counter = Counter(items)
-        # Calculate total prices for each unique item
-        total_prices = {}
-        for item, count in item_counter.items():
-            total_prices[item] = sum(prices[i] for i, it in enumerate(items) if it == item) * count
+        # Combine items and prices into a list of tuples
+        item_price_pairs = list(zip(items, prices))
+        # Count the occurrences of each unique item-price pair (bilangin kung ilan yung unique items then count kung ilan)
+        item_price_counter = Counter(item_price_pairs)
         # Create a table for items and prices via tabulate
-        table_data = [(count, item, f"₱{price}") for count, (item, price) in enumerate(total_prices.items(), start=1)]
-        table_headers = [bold_text(Fore.CYAN + 'Item No'), bold_text(Fore.CYAN + 'Item'), bold_text(Fore.CYAN + 'Price')]
+        table_data = [(count, item, f"₱{price}", f"₱{count * price}") for (item, price), count in item_price_counter.items()]
+        table_headers = [bold_text(Fore.CYAN + 'No:'), bold_text(Fore.CYAN + 'Item/s'), bold_text(Fore.CYAN + 'Price per Item'), bold_text(Fore.CYAN + 'Price Total')]
         table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid")
         print(table.center(50))
         print("-" * 50)
         time.sleep(1)
         # Create a table for total amount paid and change via tabulate module
-        print(f"Total: ₱{total_price}")
-        print(f"Amount Paid: ₱{amount}")
-        print(f"Change: ₱{amount - total_price}")
+        print("Total:".ljust(28), f"₱{total_price}".rjust(20))
+        print("Amount Paid:".ljust(28), f"₱{amount}".rjust(20))
+        print("Change:".ljust(28), f"₱{amount - total_price}".rjust(20))
         print("-" * 50)
         time.sleep(1)
         print("THIS SERVES AS YOUR OFFICIAL RECEIPT".center(50))
@@ -138,7 +136,7 @@ def main():
     use_scanner = False
     sound = pygame.mixer.Sound(pop_notif)
     sound.play()
-    print("Do you have a QR/Bar code to scan? (yes/no)")
+    print("Use camera to scan QR/Bar code? (yes/no)")
     qr_response = input("").lower()
     if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
         sound = pygame.mixer.Sound(pop_notif)
@@ -275,7 +273,6 @@ def main():
     sound.play()
     print("Is this for dine-in or take-out?")
     while True:
-        print(Fore.RESET)
         order_type = input("").lower()
         dine_inout = ['dine-in', 'dine in', 'dine', 'take-out', 'take out', 'take', 'in', 'out']
         if order_type in dine_inout:
@@ -284,10 +281,10 @@ def main():
             sound = pygame.mixer.Sound(error_notif)
             sound.play()
             print(Fore.LIGHTMAGENTA_EX +
-                  "Invalid input. Please enter 'dine-in' or 'take-out'.")
+                  "Invalid input. Please enter 'dine-in' or 'take-out'" + Fore.RESET)
             time.sleep(2)
-            print(Fore.RESET)
-            print("Is this for dine-in or take-out?")
+            print("")
+            print("Is this for dine-in or take-out?"+ Fore.RESET)
 
     sound_file = "sfx\purchase.mp3"
     sound = pygame.mixer.Sound(sound_file)
