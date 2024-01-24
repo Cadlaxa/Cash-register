@@ -73,19 +73,19 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("-" * 50)
         time.sleep(1)
         # Create a table for total amount paid and change via tabulate module
-        print("Total:".ljust(28), f"₱{total_price}".rjust(20))
-        print("Amount Paid:".ljust(28), f"₱{amount}".rjust(20))
-        print("Change:".ljust(28), f"₱{amount - total_price}".rjust(20))
+        print("Total:".ljust(28), f"₱{total_price:.3f}".rjust(20))
+        print("Amount Paid:".ljust(28), f"₱{amount:.3f}".rjust(20))
+        print("Change:".ljust(28), f"₱{amount - total_price:.3f}".rjust(20))
         time.sleep(2)
         print("-" * 50)
         vat_rate = 0.12 # 12% VAT
         vat = total_price * vat_rate
         #vat_amount = prices * vat_rate
-        print("Sales:".ljust(28), f"₱{total_price}".rjust(20))
-        print("Net sales:".ljust(28), f"₱{total_price - vat}".rjust(20))
-        print("Vat Amount:".ljust(28), f"₱{vat}".rjust(20))
+        print("Sales:".ljust(28), f"₱{total_price:.3f}".rjust(20))
+        print("Net sales:".ljust(28), f"₱{total_price - vat:.3f}".rjust(20))
+        print("Vat Amount:".ljust(28), f"₱{vat:.3f}".rjust(20))
         time.sleep(1)
-        print("Amount Due:".ljust(28), f"₱{total_price}".rjust(20))
+        print("Amount Due:".ljust(28), f"₱{total_price:.3f}".rjust(20))
         print("-" * 50)
         time.sleep(1)
         print("THIS SERVES AS YOUR OFFICIAL RECEIPT".center(50))
@@ -283,7 +283,7 @@ def main():
             sound = pygame.mixer.Sound(pop_notif)
             sound.play()
             amount = float(input("Enter the amount paid: ₱"))
-            if amount > 1:
+            if amount >= 1:
                 sound_file = "sfx\livechat-129007.mp3"
                 sound = pygame.mixer.Sound(sound_file)
                 sound.play()
