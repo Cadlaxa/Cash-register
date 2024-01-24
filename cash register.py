@@ -24,7 +24,7 @@ dateNtime = time.localtime(time.time())
 local_time = time.asctime(dateNtime)
 
 # Function to read QR/bar code
-def read_qr_code():
+def scanner():
     cap = cv2.VideoCapture(0)
     while True:
         ret, frame = cap.read()
@@ -76,6 +76,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("Total:".ljust(28), f"₱{total_price}".rjust(20))
         print("Amount Paid:".ljust(28), f"₱{amount}".rjust(20))
         print("Change:".ljust(28), f"₱{amount - total_price}".rjust(20))
+        time.sleep(2)
         print("-" * 50)
         vat_rate = 0.12 # 12% VAT
         vat = total_price * vat_rate
@@ -83,6 +84,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("Sales:".ljust(28), f"₱{total_price}".rjust(20))
         print("Net sales:".ljust(28), f"₱{total_price - vat}".rjust(20))
         print("Vat Amount:".ljust(28), f"₱{vat}".rjust(20))
+        time.sleep(1)
         print("Amount Due:".ljust(28), f"₱{total_price}".rjust(20))
         print("-" * 50)
         time.sleep(1)
@@ -91,6 +93,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         time.sleep(1)
         print("\"THIS RECEIPT SHALL BE VALID FOR".center(50))
         print("FIVE (5) YEARS FROM THE DATE OF".center(50))
+        time.sleep(1)
         print("PERMIT TO USE\"".center(50))
         print("-" * 50)
         print("--Thank you, and please come again-- 🤑".center(50))
@@ -181,7 +184,7 @@ def main():
         sound.play()
         if use_scanner:  # Use scanner input
             print("Scan item/product ('scan staff id to check out'): ")
-            item = read_qr_code()
+            item = scanner()
             sound = pygame.mixer.Sound(scan_notif)
             sound.play()
             # Split the scanned data using '=' as the delimiter/splitter
