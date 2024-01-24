@@ -11,7 +11,7 @@ import random
 import string
 from tabulate import tabulate
 import textwrap # unused might remeove soon
-from collections import Counter #may counter bug sa code
+from collections import Counter
 
 # Initialize the pygame mixer
 pygame.mixer.init()
@@ -45,7 +45,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
     total_price = sum(prices)
     if amount >= total_price:
         time.sleep(1)
-        print("\n" + bold_text(Fore.BLUE + "GROUP 1 COMPANY NAME EMI").center(63))
+        print(Fore.LIGHTGREEN_EX + "𝐋𝐚𝐱'𝐬 𝐁𝐨𝐮𝐥𝐚𝐧𝐠𝐞𝐫𝐢𝐞 𝐞𝐭 𝐏𝐚𝐭𝐢𝐬𝐬𝐞𝐫𝐢𝐞".center(50) + Fore.RESET)
         print("OWNED & OPERATED BY: GROUP 1".center(50))
         print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103".center(50))
         print("VAT REG TIN:".ljust(28), "XXX-XXX-XXX-XXX".rjust(20))
@@ -55,7 +55,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
             print("Staff Name:".ljust(28) + staff_name.rjust(20))
         print("-" * 50)
         time.sleep(1)
-        print(bold_text(Fore.BLUE + "OFFICIAL RECEIPT").center(63))
+        print(bold_text(Fore.LIGHTGREEN_EX + "OFFICIAL RECEIPT").center(63))
         print("OR No.:".ljust(28) + random_string_num.rjust(20))
         print(bold_text(local_time.center(50)))
         print("-" * 50)
@@ -67,7 +67,7 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         item_price_counter = Counter(item_price_pairs)
         # Create a table for items and prices via tabulate
         table_data = [(count, item, f"₱{price}", f"₱{count * price}") for (item, price), count in item_price_counter.items()]
-        table_headers = [bold_text(Fore.CYAN + 'No:'), bold_text(Fore.CYAN + 'Item/s'), bold_text(Fore.CYAN + 'Price per Item'), bold_text(Fore.CYAN + 'Price Total')]
+        table_headers = [bold_text(Fore.LIGHTCYAN_EX + 'No:'), bold_text(Fore.LIGHTCYAN_EX + 'Item/s'), bold_text(Fore.LIGHTCYAN_EX + 'Price per Item'), bold_text(Fore.LIGHTCYAN_EX + 'Price Total')]
         table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid")
         print(table.center(50))
         print("-" * 50)
@@ -76,6 +76,14 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("Total:".ljust(28), f"₱{total_price}".rjust(20))
         print("Amount Paid:".ljust(28), f"₱{amount}".rjust(20))
         print("Change:".ljust(28), f"₱{amount - total_price}".rjust(20))
+        print("-" * 50)
+        vat_rate = 0.12 # 12% VAT
+        vat = total_price * vat_rate
+        #vat_amount = prices * vat_rate
+        print("Sales:".ljust(28), f"₱{total_price}".rjust(20))
+        print("Net sales:".ljust(28), f"₱{total_price - vat}".rjust(20))
+        print("Vat Amount:".ljust(28), f"₱{vat}".rjust(20))
+        print("Amount Due:".ljust(28), f"₱{total_price}".rjust(20))
         print("-" * 50)
         time.sleep(1)
         print("THIS SERVES AS YOUR OFFICIAL RECEIPT".center(50))
@@ -119,15 +127,19 @@ start_notif = "sfx\mixkit-software.wav"
 pop_notif = "sfx\\tap-notification.mp3"
 error_notif = "sfx\\notification.mp3"
 scan_notif = "sfx\scanner.mp3"
+open_notif = "sfx\open.wav"
+close_notif = "sfx\close.wav"
+void_notif = "sfx\mixkit-interface-option-select-2573.wav"
 
-sound = pygame.mixer.Sound(start_notif)
+sound = pygame.mixer.Sound(open_notif)
 sound.play()
-print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
+print(Fore.YELLOW + "--------------- 𝗖𝗔𝗦𝗛 𝗥𝗘𝗚𝗜𝗦𝗧𝗘𝗥 ---------------".center(50))
 time.sleep(1)
 print("")
 sound = pygame.mixer.Sound(pop_notif)
 sound.play()
-print(bold_text(Fore.YELLOW + "Hi Welcome to company name"))
+print(bold_text(Fore.YELLOW + "Hi Welcome to Lax's Boulangerie et Patisserie"))
+
 time.sleep(1)
 print("")
 
@@ -189,13 +201,34 @@ def main():
 
             # Initialize price before checking qr_response (very important kasi nag aapend pa rin sya if the user switches input)
             price = None
-
+        
+        # Void item/s (removes the last item if user types the keyword)
+        void = ['void', 'Void', 'VOID', 'delete', 'del','DEL','item void']
+        if item in void:
+                if items:
+                    deleted_item = items.pop()
+                    deleted_price = prices.pop()
+                    time.sleep(1)
+                    print("")
+                    sound = pygame.mixer.Sound(void_notif)
+                    sound.play()
+                    print(Fore.LIGHTYELLOW_EX + f"Deleted last item: {deleted_item} - ₱{deleted_price}" + Fore.RESET)
+                    time.sleep(1)
+                else:
+                    time.sleep(1)
+                    print("")
+                    sound = pygame.mixer.Sound(void_notif)
+                    sound.play()
+                    print(Fore.LIGHTMAGENTA_EX + "No items to delete." + Fore.RESET)
+                    time.sleep(1)
+                continue
+            
         # Console to Scanner, Scanner to Console override
         override = ['override', 'switch input', 'switch', 'next', 'new']
         if item in override:
             use_scanner = not use_scanner
             time.sleep(1)
-            sound = pygame.mixer.Sound("sfx\\mixkit-software.wav")
+            sound = pygame.mixer.Sound(open_notif)
             sound.play()
             print("")
             print(Fore.LIGHTGREEN_EX + "Scanner Overridden. Switching input mode. Now using Console input" + Fore.RESET if not use_scanner
@@ -203,7 +236,7 @@ def main():
             time.sleep(1)
             continue
 
-        # Check-out conditions
+        # Check-out conditions # May bug sya pag no items then check out, nag piprint nmn yung error message but the loop continues sa enter
         check_out = ['done', 'check out', 'finished', 'beep', 'agree', 'next', 'agreed', 'oum', 'check-out']
         if item.lower() in check_out:
             break
@@ -292,7 +325,7 @@ def main():
 
     # Delete lahat ng console output and proceed sa printing ng receipt for cleaner output
     delete_multiple_lines(n=1000)
-    print("\n" + bold_text(Fore.YELLOW + "---------- CASH REGISTER ----------").center(50))
+    print(Fore.YELLOW + "--------------- 𝗖𝗔𝗦𝗛 𝗥𝗘𝗚𝗜𝗦𝗧𝗘𝗥 ---------------".center(50))
     sound_file = "sfx\dot matrix.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
