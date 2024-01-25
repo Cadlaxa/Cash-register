@@ -1,17 +1,17 @@
 # python modules
-from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import cv2
-from pyzbar.pyzbar import decode
+from os import environ #to read local environment
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1' # hides the welcom message ng pygame
+import cv2 # OpenCV python library for scanner
+from pyzbar.pyzbar import decode # pang decode ng QR code and Bar Codes
 import time
-import sys
+import sys # used to use reg ex
 import pygame #for sfx and such
-from colorama import Fore
+from colorama import Fore # for colored texts
 import random
 import string
-from tabulate import tabulate
+from tabulate import tabulate # for creating tables
 import textwrap # unused might remeove soon
-from collections import Counter
+from collections import Counter #item counter
 
 # Initialize the pygame mixer
 pygame.mixer.init()
@@ -45,6 +45,11 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
     total_price = sum(prices)
     if amount >= total_price:
         time.sleep(1)
+        print('')
+        print(Fore.LIGHTYELLOW_EX + '''             ──────▄▀▄─────▄▀▄
+            ─────▄█░░▀▀▀▀▀░░█▄
+            ─▄▄──█░░░░░░░░░░░█──▄▄
+            █▄▄█─█░░▀░░┬░░▀░░█─█▄▄█'''.center(50) + Fore.RESET)
         print(Fore.LIGHTGREEN_EX + "𝐋𝐚𝐱'𝐬 𝐁𝐨𝐮𝐥𝐚𝐧𝐠𝐞𝐫𝐢𝐞 𝐞𝐭 𝐏𝐚𝐭𝐢𝐬𝐬𝐞𝐫𝐢𝐞".center(50) + Fore.RESET)
         print("OWNED & OPERATED BY: GROUP 1".center(50))
         print("Cavite Civic Center, Palico IV. Imus City, Cavite, 4103".center(50))
@@ -53,14 +58,14 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         time.sleep(1)
         if is_staff:
             print("Staff Name:".ljust(28) + staff_name.rjust(20))
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         time.sleep(1)
         print(bold_text(Fore.LIGHTGREEN_EX + "OFFICIAL RECEIPT").center(63))
         print("OR No.:".ljust(28) + random_string_num.rjust(20))
         print(bold_text(local_time.center(50)))
-        print("-" * 50)
-        print(bold_text(order_type.center(50).upper()))
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
+        print(bold_text(Fore.LIGHTGREEN_EX + order_type.center(50).upper()+ Fore.RESET))
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         # Combine items and prices into a list of tuples
         item_price_pairs = list(zip(items, prices))
         # Count the occurrences of each unique item-price pair (bilangin kung ilan yung unique items then count kung ilan)
@@ -68,35 +73,39 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         # Create a table for items and prices via tabulate
         table_data = [(count, item, f"₱{price}", f"₱{count * price}") for (item, price), count in item_price_counter.items()]
         table_headers = [bold_text(Fore.LIGHTCYAN_EX + 'No:'), bold_text(Fore.LIGHTCYAN_EX + 'Item/s'), bold_text(Fore.LIGHTCYAN_EX + 'Price per Item'), bold_text(Fore.LIGHTCYAN_EX + 'Price Total')]
+        time.sleep(1)
         table = tabulate(table_data, headers=table_headers, tablefmt="fancy_grid")
         print(table.center(50))
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         time.sleep(1)
         # Create a table for total amount paid and change via tabulate module
-        print("Total:".ljust(28), f"₱{total_price:.3f}".rjust(20))
-        print("Amount Paid:".ljust(28), f"₱{amount:.3f}".rjust(20))
-        print("Change:".ljust(28), f"₱{amount - total_price:.3f}".rjust(20))
+        print("Total:".ljust(28), f"₱{total_price:.2f}".rjust(20))
+        print("Amount Paid:".ljust(28), f"₱{amount:.2f}".rjust(20))
+        print("Change:".ljust(28), f"₱{amount - total_price:.2f}".rjust(20))
         time.sleep(2)
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         vat_rate = 0.12 # 12% VAT
         vat = total_price * vat_rate
         #vat_amount = prices * vat_rate
-        print("Sales:".ljust(28), f"₱{total_price:.3f}".rjust(20))
-        print("Net sales:".ljust(28), f"₱{total_price - vat:.3f}".rjust(20))
-        print("Vat Amount:".ljust(28), f"₱{vat:.3f}".rjust(20))
+        print("Sales:".ljust(28), f"₱{total_price:.2f}".rjust(20))
+        print("Net sales:".ljust(28), f"₱{total_price - vat:.2f}".rjust(20))
+        print("Vat Amount:".ljust(28), f"₱{vat:.2f}".rjust(20))
         time.sleep(1)
-        print("Amount Due:".ljust(28), f"₱{total_price:.3f}".rjust(20))
-        print("-" * 50)
+        print("Amount Due:".ljust(28), f"₱{total_price:.2f}".rjust(20))
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         time.sleep(1)
         print("THIS SERVES AS YOUR OFFICIAL RECEIPT".center(50))
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         time.sleep(1)
         print("\"THIS RECEIPT SHALL BE VALID FOR".center(50))
         print("FIVE (5) YEARS FROM THE DATE OF".center(50))
         time.sleep(1)
         print("PERMIT TO USE\"".center(50))
-        print("-" * 50)
+        print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         print("--Thank you, and please come again-- 🤑".center(50))
+        print(Fore.LIGHTRED_EX +
+'''        ▀█▀ █░█ ▄▀█ █▄░█ █▄▀   █▄█ █▀█ █░█
+        ░█░ █▀█ █▀█ █░▀█ █░█   ░█░ █▄█ █▄█'''.center(50))
     else:
         sound = pygame.mixer.Sound("sfx\\notification.mp3")
         sound.play()
@@ -136,7 +145,11 @@ void_notif = "sfx\mixkit-interface-option-select-2573.wav"
 
 sound = pygame.mixer.Sound(open_notif)
 sound.play()
-print(Fore.YELLOW + "--------------- 𝗖𝗔𝗦𝗛 𝗥𝗘𝗚𝗜𝗦𝗧𝗘𝗥 ---------------".center(50))
+print(Fore.GREEN + '''
+█████████████████████████████████████████▀█████████████████████████████
+█─▄▄▄─██▀▄─██─▄▄▄▄█─█─███▄─▄▄▀█▄─▄▄─█─▄▄▄▄█▄─▄█─▄▄▄▄█─▄─▄─█▄─▄▄─█▄─▄▄▀█
+█─███▀██─▀─██▄▄▄▄─█─▄─████─▄─▄██─▄█▀█─██▄─██─██▄▄▄▄─███─████─▄█▀██─▄─▄█
+▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▄▄▀▄▀▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▄▀▄▄▀▄▄▀'''.center(50))
 time.sleep(1)
 print("")
 sound = pygame.mixer.Sound(pop_notif)
@@ -177,7 +190,11 @@ def main():
     items = []
     prices = []
     order_type = ""
-    delete_multiple_lines(8)
+    if staff_response in staff:
+        is_staff = True
+        delete_multiple_lines(10)
+    else:
+        delete_multiple_lines(8)
     while True:  # Dito yung item/price item via qr/bar code scanner or console input
         print(Fore.RESET)
         sound = pygame.mixer.Sound(pop_notif)
@@ -328,7 +345,11 @@ def main():
 
     # Delete lahat ng console output and proceed sa printing ng receipt for cleaner output
     delete_multiple_lines(n=1000)
-    print(Fore.YELLOW + "--------------- 𝗖𝗔𝗦𝗛 𝗥𝗘𝗚𝗜𝗦𝗧𝗘𝗥 ---------------".center(50))
+    print(Fore.LIGHTMAGENTA_EX + '''
+█████████████████████████████████████████▀█████████████████████████████
+█─▄▄▄─██▀▄─██─▄▄▄▄█─█─███▄─▄▄▀█▄─▄▄─█─▄▄▄▄█▄─▄█─▄▄▄▄█─▄─▄─█▄─▄▄─█▄─▄▄▀█
+█─███▀██─▀─██▄▄▄▄─█─▄─████─▄─▄██─▄█▀█─██▄─██─██▄▄▄▄─███─████─▄█▀██─▄─▄█
+▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▄▄▀▄▀▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▄▀▄▄▀▄▄▀'''.center(50))
     sound_file = "sfx\dot matrix.mp3"
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
