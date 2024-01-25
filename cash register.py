@@ -164,7 +164,7 @@ def main():
     use_scanner = False
     sound = pygame.mixer.Sound(pop_notif)
     sound.play()
-    print("Use camera to scan QR/Bar code? (yes/no)")
+    print(bold_text("Use camera to scan QR/Bar code? (yes/no)"))
     qr_response = input("").lower()
     if qr_response in ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']:
         sound = pygame.mixer.Sound(pop_notif)
@@ -177,7 +177,7 @@ def main():
     sound = pygame.mixer.Sound(pop_notif)
     sound.play()
     print("")
-    print("Are you a staff member? (yes/no)")
+    print(bold_text("Are you a staff member? (yes/no)"))
     staff_response = input("").lower()
     staff = ['yes', 'oo', 'yup', 'yas', 'yass', 'oum', 'ey', 'correct', 'y', 'yeah']
     if staff_response in staff:
@@ -200,7 +200,7 @@ def main():
         sound = pygame.mixer.Sound(pop_notif)
         sound.play()
         if use_scanner:  # Use scanner input
-            print("Scan item/product ('scan staff id to check out'): ")
+            print(bold_text(Fore.YELLOW + "Scan item/product (scan staff id to 'check out', 'void' to remove item): "+ Fore.RESET))
             item = scanner()
             sound = pygame.mixer.Sound(scan_notif)
             sound.play()
@@ -216,7 +216,7 @@ def main():
                     print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR/Bar code try again." + Fore.RESET)
                     continue
         else:  # Use console input
-            print("Enter item name ('check out' to finish): ")
+            print(bold_text(Fore.LIGHTBLUE_EX + "Enter item name ('check out' to finish, 'void' to remove item): "+ Fore.RESET))
             item = input("")
 
             # Initialize price before checking qr_response (very important kasi nag aapend pa rin sya if the user switches input)
@@ -268,7 +268,7 @@ def main():
                     print(Fore.RESET)
                     sound = pygame.mixer.Sound(pop_notif)
                     sound.play()
-                    price = float(input("Enter item price: ₱"))
+                    price = float(input(bold_text("Enter item price: ₱")))
                     sound = pygame.mixer.Sound(scan_notif)
                     sound.play()
                     if price < 0:
@@ -299,7 +299,7 @@ def main():
             print(Fore.RESET)
             sound = pygame.mixer.Sound(pop_notif)
             sound.play()
-            amount = float(input("Enter the amount paid: ₱"))
+            amount = float(input(bold_text("Enter the amount paid: ₱")))
             if amount >= 1:
                 sound_file = "sfx\livechat-129007.mp3"
                 sound = pygame.mixer.Sound(sound_file)
@@ -324,7 +324,7 @@ def main():
     print("")
     sound = pygame.mixer.Sound(pop_notif)
     sound.play()
-    print("Is this for dine-in or take-out?")
+    print(bold_text("Is this for dine-in or take-out?"))
     while True:
         order_type = input("").lower()
         dine_inout = ['dine-in', 'dine in', 'dine', 'take-out', 'take out', 'take', 'in', 'out']
