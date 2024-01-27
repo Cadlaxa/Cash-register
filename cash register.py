@@ -142,6 +142,8 @@ scan_notif = "sfx\scanner.mp3"
 open_notif = "sfx\open.wav"
 close_notif = "sfx\close.wav"
 void_notif = "sfx\mixkit-interface-option-select-2573.wav"
+charm_notif = "sfx\90s-game-ui-7.mp3"
+alert_notif = "sfx\message-incoming.mp3"
 
 sound = pygame.mixer.Sound(open_notif)
 sound.play()
@@ -210,14 +212,37 @@ def main():
                 item = parts[0].strip()  # Extract item name
                 try:
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
+                    if price < 0:
+                        time.sleep(1)
+                        print('')
+                        sound = pygame.mixer.Sound(error_notif)
+                        sound.play()
+                        print(Fore.LIGHTMAGENTA_EX + "Invalid price input. Price cannot be a negative value. Please Try again" + Fore.RESET)
+                        time.sleep(2)
+                        continue
                 except ValueError:
-                    sound = pygame.mixer.Sound(scan_notif)
+                    sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR/Bar code try again." + Fore.RESET)
                     continue
         else:  # Use console input
             print(bold_text(Fore.LIGHTBLUE_EX + "Enter item name ('check out' to finish, 'void' to remove item): "+ Fore.RESET))
             item = input("")
+            if 'x' in item and item.rsplit('x', 1)[1].isdigit():
+                parts = item.rsplit('x', 1)
+                item = parts[0].strip()  # Extracting the item name
+                # Default quantity is 1 if not specified or invalid
+                quantity = 1
+                if len(parts) > 1 and parts[1].isdigit():
+                    quantity = int(parts[1])
+                time.sleep(1)
+                sound = pygame.mixer.Sound(charm_notif)
+                sound.play()
+                print(Fore.LIGHTYELLOW_EX + f"Added {quantity} {item}/s" + Fore.RESET)
+                time.sleep(1)
+            else:
+                item = item.strip()
+                quantity = 1  # Default quantity is 1
 
             # Initialize price before checking qr_response (very important kasi nag aapend pa rin sya if the user switches input)
             price = None
@@ -242,6 +267,51 @@ def main():
                     print(Fore.LIGHTMAGENTA_EX + "No items to delete." + Fore.RESET)
                     time.sleep(1)
                 continue
+        # Voids specific item/s and quantity
+        void_commands = ['void item', 'pick void', 'void spec', 'void specific', 'void items']
+        if item in void_commands:
+            if items:
+                time.sleep(1)
+                print("")
+                sound = pygame.mixer.Sound(pop_notif)
+                sound.play()
+                print(bold_text(Fore.LIGHTMAGENTA_EX + "Enter the item and quantity to void (e.g., 'apple x2'):")+ Fore.RESET)
+                void_input = input("").strip()
+                if 'x' in void_input and void_input.rsplit('x')[1].isdigit():
+                    parts = void_input.rsplit('x')
+                    void_item = parts[0].strip()
+                    void_quantity = int(parts[1])
+                    # Find and remove the item from the list
+                    for _ in range(void_quantity):
+                        if void_item in items:
+                            time.sleep(1)
+                            print("")
+                            sound = pygame.mixer.Sound(void_notif)
+                            sound.play()
+                            index = items.index(void_item)
+                            deleted_item = items.pop(index)
+                            deleted_price = prices.pop(index)
+                            print(Fore.LIGHTYELLOW_EX + f"Voided item: {deleted_item} - ₱{deleted_price}" + Fore.RESET)
+                        else:
+                            time.sleep(1)
+                            print("")
+                            sound = pygame.mixer.Sound(error_notif)
+                            sound.play()
+                            print(Fore.LIGHTMAGENTA_EX + f"Item '{void_item}' not found or quantity exceeded." + Fore.RESET)
+                            break
+                else:
+                    time.sleep(1)
+                    print("")
+                    sound = pygame.mixer.Sound(error_notif)
+                    sound.play()
+                    print(Fore.LIGHTMAGENTA_EX + "Invalid void format. Please enter 'item Xquantity'." + Fore.RESET)
+            else:
+                time.sleep(1)
+                print("")
+                sound = pygame.mixer.Sound(error_notif)
+                sound.play()
+                print(Fore.LIGHTMAGENTA_EX + "No items to void." + Fore.RESET)
+            continue
             
         # Console to Scanner, Scanner to Console override
         override = ['override', 'switch input', 'switch', 'next', 'new']
@@ -272,13 +342,20 @@ def main():
                     sound = pygame.mixer.Sound(scan_notif)
                     sound.play()
                     if price < 0:
+                        print('')
                         sound = pygame.mixer.Sound(error_notif)
                         sound.play()
                         print(Fore.LIGHTMAGENTA_EX +
-                            "Invalid input. Value of the item must be positive, input a non-negative number")
+                            "Invalid price input. Price cannot be a negative value. Please Try again")
                         time.sleep(2)
                     else:
-                        break
+                        if quantity > 1:
+                            # Calculate total price taking quantity into account
+                            total_price = price * quantity
+                            print(Fore.LIGHTYELLOW_EX + f"Item: {item}, Price per item: ₱{price}, Quantity: {quantity}, Total Price: ₱{total_price}" + Fore.RESET)
+                        else:
+                            break
+                    break
                 except ValueError:
                     sound = pygame.mixer.Sound(error_notif)
                     sound.play()
@@ -286,9 +363,14 @@ def main():
                         "Invalid input. Please enter a valid number for the item price." + Fore.RESET)
                     time.sleep(2)
 
-        # Append the item and price to the respective lists (sum of items sa console or scanner or switch input vice versa)
-        items.append(item)
-        prices.append(price)
+        # Append the item and total price to the respective lists
+        if quantity > 1: # If inputed Items is more than 1
+            for _ in range(quantity):
+                items.append(item)
+                prices.append(price)
+        else:
+            items.append(item)
+            prices.append(price)  # Append price as is for single item
         sound = pygame.mixer.Sound(scan_notif)
         sound.play()
         time.sleep(1)
@@ -299,6 +381,8 @@ def main():
             print(Fore.RESET)
             sound = pygame.mixer.Sound(pop_notif)
             sound.play()
+            total_amount_on_cart = sum(prices)
+            print(bold_text(Fore.LIGHTGREEN_EX + "Total Amount in cart: ₱{:.2f}".format(total_amount_on_cart) + Fore.RESET))
             amount = float(input(bold_text("Enter the amount paid: ₱")))
             if amount >= 1:
                 sound_file = "sfx\livechat-129007.mp3"
