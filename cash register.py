@@ -228,6 +228,7 @@ def main():
         else:  # Use console input
             print(bold_text(Fore.LIGHTBLUE_EX + "Enter item name ('check out' to finish, 'void' to remove item): "+ Fore.RESET))
             item = input("")
+            # If input has a X item multiplier, rsplit the parts and data to items and quantities
             if 'x' in item and item.rsplit('x', 1)[1].isdigit():
                 parts = item.rsplit('x', 1)
                 item = parts[0].strip()  # Extracting the item name
@@ -382,7 +383,7 @@ def main():
             sound = pygame.mixer.Sound(pop_notif)
             sound.play()
             total_amount_on_cart = sum(prices)
-            print(bold_text(Fore.LIGHTGREEN_EX + "Total Amount in cart: ₱{:.2f}".format(total_amount_on_cart) + Fore.RESET))
+            print(bold_text(Fore.LIGHTGREEN_EX + "Total Amount in cart: ₱{:.2f}".format(total_amount_on_cart) + Fore.RESET)) # (view yung total amount so may clue tayo kung ano na yung price na ipe-pay ni customer)
             amount = float(input(bold_text("Enter the amount paid: ₱")))
             if amount >= 1:
                 sound_file = "sfx\livechat-129007.mp3"
