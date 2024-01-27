@@ -224,17 +224,18 @@ def main():
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
                     # If price is a negative value
                     if price < 0:
-                        time.sleep(1)
-                        print('')
+                        
                         sound = pygame.mixer.Sound(error_notif)
                         sound.play()
                         print(Fore.LIGHTMAGENTA_EX + "Invalid price input. Price cannot be a negative value. Please Try again" + Fore.RESET)
                         time.sleep(2)
                         continue
                 except ValueError:
+                    time.sleep(1)
                     sound = pygame.mixer.Sound(error_notif)
                     sound.play()
                     print(Fore.LIGHTMAGENTA_EX + "Invalid price format in the QR/Bar code try again." + Fore.RESET)
+                    time.sleep(2)
                     continue
         else:  # Use console input
             print(bold_text(Fore.LIGHTBLUE_EX + "Enter item name ('check out' to finish, 'void' to remove item): "+ Fore.RESET))
@@ -354,12 +355,12 @@ def main():
                     sound = pygame.mixer.Sound(scan_notif)
                     sound.play()
                     if price < 0:
-                        print('')
                         sound = pygame.mixer.Sound(error_notif)
                         sound.play()
                         print(Fore.LIGHTMAGENTA_EX +
                             "Invalid price input. Price cannot be a negative value. Please Try again")
                         time.sleep(2)
+                        continue
                     else:
                         if quantity > 1:
                             # Calculate total price taking quantity into account
