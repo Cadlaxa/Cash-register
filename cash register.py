@@ -204,14 +204,25 @@ def main():
         if use_scanner:  # Use scanner input
             print(bold_text(Fore.YELLOW + "Scan item/product (scan staff id to 'check out', 'void' to remove item): "+ Fore.RESET))
             item = scanner()
+            quantity = 1 # Assumes that the item scanned sa scanner is only 1 item
             sound = pygame.mixer.Sound(scan_notif)
             sound.play()
+            # If price is a negative value
+            if item.isdigit():
+                time.sleep(1)
+                print('')
+                sound = pygame.mixer.Sound(error_notif)
+                sound.play()
+                print(Fore.LIGHTMAGENTA_EX + "This barcode is not in the store databse yet. Please try to input the item name" + Fore.RESET)
+                time.sleep(2)
+                continue
             # Split the scanned data using '=' as the delimiter/splitter
             parts = item.split('=')
             if len(parts) == 2:
                 item = parts[0].strip()  # Extract item name
                 try:
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
+                    # If price is a negative value
                     if price < 0:
                         time.sleep(1)
                         print('')
