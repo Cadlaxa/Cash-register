@@ -41,7 +41,7 @@ def scanner():
     cv2.destroyAllWindows()
 
 # Function to print receipt
-def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
+def print_receipt(items, prices, amount, order_type, is_staff, staff_name, is_customer, customer_name, customer_count=""):
     total_price = sum(prices)
     if amount >= total_price:
         time.sleep(1)
@@ -64,7 +64,10 @@ def print_receipt(items, prices, amount, order_type, is_staff, staff_name=""):
         print("OR No.:".ljust(28) + random_string_num.rjust(20))
         print(bold_text(local_time.center(50)))
         print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
-        print(bold_text(Fore.LIGHTGREEN_EX + order_type.center(50).upper()+ Fore.RESET))
+        print(bold_text(Fore.LIGHTRED_EX + order_type.center(50).upper()+ Fore.RESET))
+        if is_customer:
+            print(bold_text(Fore.LIGHTGREEN_EX + "Order for:".ljust(28) + customer_name.rjust(20) + Fore.RESET))
+            print(bold_text(Fore.LIGHTGREEN_EX + "Seat/s:".ljust(28) + str(customer_count).rjust(20) + Fore.RESET))
         print(bold_text(Fore.YELLOW + "-" * 50 + Fore.RESET))
         # Combine items and prices into a list of tuples
         item_price_pairs = list(zip(items, prices))
@@ -188,15 +191,33 @@ def main():
         sound = pygame.mixer.Sound(pop_notif)
         sound.play()
         staff_name = input("Enter your name: ")
+        time.sleep(1)
+
+    # Customer name
+    is_customer = False
+    customer_name = ""
+    customer_count = ""
+    sound = pygame.mixer.Sound(pop_notif)
+    sound.play()
+    print("")
+    customer_name = input(bold_text("Enter the customer's name: ")).lower()
+    if customer_name:
+        is_customer = True
+        time.sleep(1)
+        print("")
+        sound = pygame.mixer.Sound(pop_notif)
+        sound.play()
+        customer_count = int(input("Customer count: ").lower())
 
     items = []
     prices = []
     order_type = ""
     if staff_response in staff:
         is_staff = True
-        delete_multiple_lines(10)
+        delete_multiple_lines(14)
     else:
-        delete_multiple_lines(8)
+        delete_multiple_lines(12)
+
     while True:  # Dito yung item/price item via qr/bar code scanner or console input
         print(Fore.RESET)
         sound = pygame.mixer.Sound(pop_notif)
@@ -453,7 +474,7 @@ def main():
     loading_bar(5)
     total_price = sum(prices)
     if amount >= total_price:
-        print_receipt(items, prices, amount, order_type, is_staff, staff_name)
+        print_receipt(items, prices, amount, order_type, is_staff, staff_name, is_customer, customer_name, customer_count)
     else:
         sound = pygame.mixer.Sound(error_notif)
         sound.play()
