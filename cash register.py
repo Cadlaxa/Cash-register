@@ -150,16 +150,16 @@ alert_notif = "sfx\message-incoming.mp3"
 
 sound = pygame.mixer.Sound(open_notif)
 sound.play()
-print(Fore.GREEN + '''
+print(Fore.YELLOW + '''
 █████████████████████████████████████████▀█████████████████████████████
 █─▄▄▄─██▀▄─██─▄▄▄▄█─█─███▄─▄▄▀█▄─▄▄─█─▄▄▄▄█▄─▄█─▄▄▄▄█─▄─▄─█▄─▄▄─█▄─▄▄▀█
 █─███▀██─▀─██▄▄▄▄─█─▄─████─▄─▄██─▄█▀█─██▄─██─██▄▄▄▄─███─████─▄█▀██─▄─▄█
-▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▄▄▀▄▀▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▄▀▄▄▀▄▄▀'''.center(50))
+▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▄▄▀▄▀▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▄▀▄▄▀▄▄▀'''.center(50) + Fore.RESET)
 time.sleep(1)
 print("")
 sound = pygame.mixer.Sound(pop_notif)
 sound.play()
-print(bold_text(Fore.YELLOW + "Hi Welcome to Lax's Boulangerie et Patisserie"))
+print(bold_text(Fore.LIGHTMAGENTA_EX + "Hi Welcome to Lax's Boulangerie et Patisserie"))
 
 time.sleep(1)
 print("")
@@ -190,7 +190,7 @@ def main():
         print("")
         sound = pygame.mixer.Sound(pop_notif)
         sound.play()
-        staff_name = input("Enter your name: ")
+        staff_name = input(bold_text("Enter your name: "))
         time.sleep(1)
 
     # Customer name
@@ -203,20 +203,36 @@ def main():
     customer_name = input(bold_text("Enter the customer's name: ")).lower()
     if customer_name:
         is_customer = True
-        time.sleep(1)
-        print("")
-        sound = pygame.mixer.Sound(pop_notif)
-        sound.play()
-        customer_count = int(input("Customer count: ").lower())
+        while True:
+            try:
+                time.sleep(1)
+                print("")
+                sound = pygame.mixer.Sound(pop_notif)
+                sound.play()
+                customer_count = int(input(bold_text("Customer count: ")))
+                if customer_count < 0:
+                    sound = pygame.mixer.Sound(error_notif)
+                    sound.play()
+                    raise ValueError(Fore.LIGHTMAGENTA_EX + "Customer count should not be a negative number Please Try again" + Fore.RESET)
+                break
+            except ValueError as e:
+                sound = pygame.mixer.Sound(error_notif)
+                sound.play()
+                if "negative" in str(e):
+                    print(Fore.LIGHTMAGENTA_EX + "Invalid number input. Count cannot be a negative value. Please try again." + Fore.RESET)
+                else:
+                    print(Fore.LIGHTMAGENTA_EX + "Invalid number format. Please enter a valid number." + Fore.RESET)
+                time.sleep(1)
 
     items = []
     prices = []
     order_type = ""
-    if staff_response in staff:
-        is_staff = True
-        delete_multiple_lines(14)
-    else:
-        delete_multiple_lines(12)
+    delete_multiple_lines(1000) # Deletes all the questions and proceed to the item input/scanner
+    print(Fore.GREEN + '''
+█████████████████████████████████████████▀█████████████████████████████
+█─▄▄▄─██▀▄─██─▄▄▄▄█─█─███▄─▄▄▀█▄─▄▄─█─▄▄▄▄█▄─▄█─▄▄▄▄█─▄─▄─█▄─▄▄─█▄─▄▄▀█
+█─███▀██─▀─██▄▄▄▄─█─▄─████─▄─▄██─▄█▀█─██▄─██─██▄▄▄▄─███─████─▄█▀██─▄─▄█
+▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▄▄▀▄▀▄▀▀▀▄▄▀▄▄▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▄▀▄▄▀▄▄▀'''.center(50))
 
     while True:  # Dito yung item/price item via qr/bar code scanner or console input
         print(Fore.RESET)
@@ -245,7 +261,6 @@ def main():
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
                     # If price is a negative value
                     if price < 0:
-                        
                         sound = pygame.mixer.Sound(error_notif)
                         sound.play()
                         print(Fore.LIGHTMAGENTA_EX + "Invalid price input. Price cannot be a negative value. Please Try again" + Fore.RESET)
