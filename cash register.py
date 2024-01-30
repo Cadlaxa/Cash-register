@@ -10,7 +10,6 @@ from colorama import Fore # for colored texts
 import random
 import string
 from tabulate import tabulate # for creating tables
-import textwrap # unused might remeove soon
 from collections import Counter #item counter
 
 # Initialize the pygame mixer
@@ -200,7 +199,7 @@ def main():
     sound = pygame.mixer.Sound(pop_notif)
     sound.play()
     print("")
-    customer_name = input(bold_text("Enter the customer's name: ")).lower()
+    customer_name = input(bold_text("Enter the customer's name: "))
     if customer_name:
         is_customer = True
         while True:
@@ -255,7 +254,7 @@ def main():
                 continue
             # Split the scanned data using '=' as the delimiter/splitter
             parts = item.split('=')
-            if len(parts) == 2:
+            if len(parts) == 2: #item = price apples = 35.50
                 item = parts[0].strip()  # Extract item name
                 try:
                     price = float(parts[1].replace('₱', '').strip())  # Extract and convert price
@@ -275,7 +274,7 @@ def main():
                     continue
         else:  # Use console input
             print(bold_text(Fore.LIGHTBLUE_EX + "Enter item name ('check out' to finish, 'void' to remove item): "+ Fore.RESET))
-            item = input("")
+            item = input("") # apples x2
             # If input has a X item multiplier, rsplit the parts and data to items and quantities
             if 'x' in item and item.rsplit('x', 1)[1].isdigit():
                 parts = item.rsplit('x', 1)
